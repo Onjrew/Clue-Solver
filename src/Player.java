@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Player 
 {
@@ -55,16 +56,42 @@ public class Player
 	}//getName()
 	
 	
-	void addToPlayedCards(String cards)
-	{
-		this.playedCards.add(cards);
+	void addToPlayedCards(ArrayList<String> cards)
+	{	
+		Iterator<String> itr = cards.iterator();
+		while(itr.hasNext())
+		{
+			playedCards.add(itr.next());
+		}
 	
 	}//addToPLayedCards()
 	
 	
-	String getPlayedCards(int i)
-	{
-		return (String) this.playedCards.get(i);
+	void getPlayedCards()
+	{	
+		System.out.print(this.name + " has ");
+		if(playedCards.isEmpty())
+		{
+			System.out.println("no played cards.\n");
+		}
+		else
+		{
+			System.out.print("played: ");
+			Iterator<String> itr = playedCards.iterator();
+			while(itr.hasNext())
+			{
+				String card = (String) itr.next();
+				System.out.print(card);
+				if(itr.hasNext())
+				{
+					System.out.print(", ");
+				}
+				else
+				{
+					System.out.println(".\n");
+				}
+			}
+		}
 	
 	}//getPlayedCards()
 	
