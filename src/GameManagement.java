@@ -5,8 +5,10 @@ public class GameManagement
 {
 	ArrayList<Player> playerArray = new ArrayList<Player>();
 	static Player currentPlayer;
+	static Solution gameSolution = new Solution();
+	static GameStatusAnalyzer gameStatus = new GameStatusAnalyzer();
 
-	public void GameSetup()
+	public void gameSetup()
 	{	
 		System.out.println("How many players are there?");
 		
@@ -33,29 +35,10 @@ public class GameManagement
 		
 		System.out.println("\n\n=== Finished initializing players. ===\n\n");
 		
-	}//GameSetup()
-	
-	public void ResultTest()
-	{
-		ArrayList<String> cardArray = new ArrayList<String>();
-		cardArray.add("Knife");
-		cardArray.add("Mrs. Peacock");
-		cardArray.add("Billiard Room");
-		Player testPlayer = (Player) playerArray.get(0);
-		testPlayer.addToPlayedCards(cardArray);
-		
-		System.out.println("There are " + playerArray.size() + " players:\n");
-		
-		for(int i = 0; i < playerArray.size(); i++)
-		{
-			Player retreivedPlayer = (Player) playerArray.get(i);
-			retreivedPlayer.getPlayedCards();
-		}
-		
-	}//ResultTest()
+	}//gameSetup()
 	
 	
-	public void NextPlayer(Player cP)
+	public void nextPlayer(Player cP)
 	{	
 		//System.out.print("Current player changed from " + currentPlayer.getName() + " to ");
 		if(playerArray.indexOf(cP) == (playerArray.size() - 1))
@@ -68,26 +51,31 @@ public class GameManagement
 		}
 		//System.out.println(currentPlayer.getName() + ".");
 		
-	}//NextPlayer()
+	}//nextPlayer()
 	
 	
-	public void GameLoop()
+	public void gameLoop()
 	{	
 		int indexOfCurrentPlayer;
 		boolean running = true, inner;
 		Scanner scan = new Scanner(System.in);
 		String response = "";
+		ArrayList<String> suggestedCards = new ArrayList<String>();
 		
 		while(running)
 		{
 			//[0]	Get new suggestion for solution, suggested by the Current Player
+			suggestedCards.add("Knife");
+			suggestedCards.add("Colonel Mustard");
+			suggestedCards.add("Lounge");
+			
 			indexOfCurrentPlayer = playerArray.indexOf(currentPlayer);
 			System.out.println(currentPlayer.getName() + " makes their suggestion.");
 			inner = true;
 			while(inner)
 			{
 				//[1] Change the selected player and get response to suggestion
-				this.NextPlayer(currentPlayer);
+				this.nextPlayer(currentPlayer);
 				System.out.println("Selected player changed to " + currentPlayer.getName());
 				System.out.println("Did " + currentPlayer.getName() + " Pass or Play?");
 				response = scan.nextLine();
@@ -96,20 +84,20 @@ public class GameManagement
 				if(response.equals("Pass"))
 				{
 					System.out.println(currentPlayer.getName() + " passed.");
-					//[2a]	Remove the suggested cards from their possible cards
-					System.out.println("Suggested cards removed from " + currentPlayer.getName() + "'s Possible Cards.\n");
-					//[2b]	Go back to [1]
+					
+					//[2a] Call Relevant GameStatusAnalyzer methods
+					gameStatus.removeFromPossibleCards(suggestedCards, currentPlayer, this);
 				}
 				//[3]	If the selected player Plays
 				else if(response.equals("Play"))
 				{
 					System.out.println(currentPlayer.getName() + " played.");
-					//[3a]	Add the suggested cards to their Played Cards
-					System.out.println("Suggested cards added to " + currentPlayer.getName() + "'s Played Cards.\n");
-					//[3b]	Change the Current Player
+					
+					//[3a] Call relevant GameStatusAnalyzer methods
+					
 					currentPlayer = playerArray.get(indexOfCurrentPlayer);
-					this.NextPlayer(currentPlayer);
-					//[3c]	Go back to [0]
+					this.nextPlayer(currentPlayer);
+					//[3b]	Go back to [0]
 					inner = false;
 				}
 				else if(response.equals("Quit"))
@@ -127,14 +115,17 @@ public class GameManagement
 		}
 		System.out.println("\n=== Game Loop Exited ===");
 		
-	}//NewTurn()
+	}//gameLoop()
 	
 	
 	public static void main(String args[]) 
-	{
+	{	
 		GameManagement newGame = new GameManagement();
-		newGame.GameSetup();
-		newGame.GameLoop();
+		//newGame.gameSetup();
+		//newGame.gameLoop();
+		
+		TesterClass test = new TesterClass();
+		test.test(newGame);
 		
 	}//main()
 

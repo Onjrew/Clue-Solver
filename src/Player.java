@@ -6,6 +6,7 @@ public class Player
 	//=== Class Variables ===
 	
 	String name;
+	int numOfCards;
 	ArrayList<String> 	possibleCards 	= new ArrayList<String>(), 
 						playedCards 	= new ArrayList<String>(), 
 						knownCards 		= new ArrayList<String>();
@@ -56,17 +57,6 @@ public class Player
 	}//getName()
 	
 	
-	void addToPlayedCards(ArrayList<String> cards)
-	{	
-		Iterator<String> itr = cards.iterator();
-		while(itr.hasNext())
-		{
-			playedCards.add(itr.next());
-		}
-	
-	}//addToPLayedCards()
-	
-	
 	void getPlayedCards()
 	{	
 		System.out.print(this.name + " has ");
@@ -94,6 +84,28 @@ public class Player
 		}
 	
 	}//getPlayedCards()
+	
+	
+	void getPossibleCards()
+	{
+		System.out.print(this.getName() + " has these possible cards: ");
+		Iterator<String> itr = possibleCards.iterator();
+		while(itr.hasNext())
+		{
+			System.out.print(itr.next());
+			if (itr.hasNext()) 
+			{
+				System.out.print(", ");
+			}
+			else 
+			{
+				System.out.print(".\n");
+			}
+		}
+		possibleCards.trimToSize();
+		
+	}//getPossibleCards()
+	
 	
 
 }//Player class
