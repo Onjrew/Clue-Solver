@@ -1,20 +1,23 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 public class Player 
 {
 	//=== Class Variables ===
 	
 	String name;
-	int numOfCards;
+	int numOfHeldCards;
+	boolean SOLVED;
 	ArrayList<String> 	possibleCards 	= new ArrayList<String>(), 
-						playedCards 	= new ArrayList<String>(), 
+						playedCards 	= new ArrayList<String>(),
+						heldCards		= new ArrayList<String>(),
 						knownCards 		= new ArrayList<String>();
 	
 	
 	//=== Class Constructor ===
 	
-	Player()
+	Player(ArrayList<String> cardPool)
 	{
 		this.possibleCards.add("Knife");
 		this.possibleCards.add("Candlestick");
@@ -37,6 +40,8 @@ public class Player
 		this.possibleCards.add("Lounge");
 		this.possibleCards.add("Hall");
 		this.possibleCards.add("Study");
+		
+		SOLVED = false;
 	
 	}//Player()
 	
@@ -55,7 +60,6 @@ public class Player
 		return this.name;
 	
 	}//getName()
-	
 	
 	void getPlayedCards()
 	{	
