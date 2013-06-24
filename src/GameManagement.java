@@ -1,3 +1,4 @@
+import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -6,50 +7,15 @@ public class GameManagement
 	ArrayList<Player> playerArray = new ArrayList<Player>();
 	Scanner scan = new Scanner(System.in);
 	static Player currentPlayer;
-	static Solution gameSolution = new Solution();
+	static Solution solution;
 	static GameStatusAnalyzer gameStatus = new GameStatusAnalyzer();
 	static TesterClass tester = new TesterClass();
 	ArrayList<String> cardPool = new ArrayList<String>();
-	int numberOfPlayers = 4, numberOfCards, numOfTurns = 0;
-	String playerName;
+	int numberOfPlayers = 6, numberOfCards, numOfTurns = 0, numOfPasses = 0;
 	boolean AUTOPLAY = true, AUTODEAL = true;
 
 	public void gameSetup()
 	{	
-		if(!AUTOPLAY)
-		{
-			System.out.println("How many players are there?");
-			String enteredNumber;
-			enteredNumber = scan.nextLine();
-			numberOfPlayers = Integer.parseInt(enteredNumber);
-			System.out.println("=== Finished setting the number of players. ===\n\n");
-		}
-		
-		//Create all the players
-		for(int i = 0; i < numberOfPlayers; i++)
-		{
-			if(!AUTOPLAY)
-			{
-				System.out.println("What is player " + (i+1) + "'s name?");
-				playerName = scan.nextLine();
-			}
-			else 
-			{
-				playerName = "Player " + i;
-				System.out.println(playerName + " created.");
-			}
-			Player newPlayer = new Player(cardPool);
-			newPlayer.setName(playerName);
-			if(!AUTOPLAY)
-			{
-				System.out.println("How many cards do they have?");
-				newPlayer.numOfHeldCards = Integer.parseInt(scan.nextLine());
-			}
-			playerArray.add(newPlayer);	
-		}
-		
-		System.out.println("\n\n=== Finished initializing players. ===\n\n");
-		
 		//Weapons
 		this.cardPool.add("Knife");				//0
 		this.cardPool.add("Candlestick");		//1
@@ -77,17 +43,54 @@ public class GameManagement
 		this.cardPool.add("Hall");				//19
 		this.cardPool.add("Study");				//20
 		
+		if(!AUTOPLAY)
+		{
+			System.out.println("How many players are there?");
+			numberOfPlayers = Integer.parseInt(scan.nextLine());
+			System.out.println("=== Finished setting the number of players. ===\n\n");
+		}
+		
+		//Create all the players
+		for(int i = 0; i < numberOfPlayers; i++)
+		{
+			Player newPlayer = new Player(cardPool);
+			if(!AUTOPLAY)
+			{
+				System.out.println("What is player " + (i+1) + "'s name?");
+				newPlayer.setName(scan.nextLine());
+			}
+			else 
+			{
+				newPlayer.setName("Player " + i);
+				System.out.println(newPlayer.getName() + " created.");
+			}
+			if(!AUTOPLAY)
+			{
+				System.out.println("How many cards do they have?");
+				newPlayer.numOfHeldCards = Integer.parseInt(scan.nextLine());
+			}
+			playerArray.add(newPlayer);	
+		}
+		
+		//Create a Solution
+		solution = new Solution();
+		solution.heldCards.addAll(this.setSolution(cardPool));
+		
+		System.out.println("\n\n=== Finished initializing players. ===\n\n");
+		
+		//Set the number of cards held by each player
 		if(AUTOPLAY)
 		{
 			for(int i = 0; i < cardPool.size(); i++)
 			{
-				playerArray.get(i % playerArray.size()).numOfHeldCards++;
+					playerArray.get(i % playerArray.size()).numOfHeldCards++;
 			}
 			
 			for(int i = 0; i < playerArray.size(); i++)
 			{
 				System.out.println(playerArray.get(i).getName() + " has " + playerArray.get(i).numOfHeldCards + " cards.");
 			}
+			System.out.println(solution.name + " has " + solution.numOfHeldCards + " cards.");
 		}
 		
 		if(AUTODEAL)
@@ -102,7 +105,13 @@ public class GameManagement
 					System.out.println(playerArray.get(i).heldCards.get(j));
 				}
 			}
+			System.out.println("\n" + solution.name + " has:");
+			for(int i = 0; i < solution.heldCards.size(); i++)
+			{
+				System.out.println(solution.heldCards.get(i));
+			}
 		}
+		
 		
 		currentPlayer = playerArray.get(0);
 		
@@ -136,7 +145,7 @@ public class GameManagement
 		
 		while(running)
 		{
-			//[0]	Get new suggestion for solution, suggested by the Current Player
+			//Get new suggestion for solution, suggested by the Current Player
 			suggestedCards = tester.createSuggestion();
 			System.out.print("\nThe cards: ");
 			for(int i = 0; i < suggestedCards.size(); i++)
@@ -151,10 +160,13 @@ public class GameManagement
 			inner = true;
 			while(inner)
 			{
-				//[1] Change the selected player and get response to suggestion
 				this.nextPlayer(currentPlayer);
-				//System.out.println("Selected player changed to " + currentPlayer.getName());
-				System.out.print(suggestingPlayerName + " has suggested: ");
+				System.out.print("Solution Cards: ");
+				for(int i = 0; i < solution.heldCards.size(); i++)
+				{
+					System.out.print(solution.heldCards.get(i) + "\t");
+				}
+				System.out.print("\n" + suggestingPlayerName + " has suggested: ");
 				for(int i = 0; i < suggestedCards.size(); i++)
 				{
 					System.out.print(suggestedCards.get(i));
@@ -181,12 +193,24 @@ public class GameManagement
 				if(response.equals("Pass"))
 				{
 					System.out.println(currentPlayer.getName() + " passed.\n");
+					numOfPasses++;
+					if(numOfPasses == playerArray.size())
+					{
+						System.out.print("\n\tXXXXX Suggested Cards were the Solution XXXXX\n");
+						inner = false;
+						solution.knownCards.clear();
+						solution.knownCards.addAll(suggestedCards);
+						solution.weaponFound = true;
+						solution.characterFound = true;
+						solution.locationFound = true;
+					}
 					
 					//[2a] Call Relevant GameStatusAnalyzer methods
-					if(!currentPlayer.SOLVED)
+					if(!(currentPlayer.SOLVED || (solution.weaponFound & solution.characterFound & solution.locationFound)))
 					{
-						gameStatus.removeFromPossibleCards(suggestedCards, currentPlayer, this);
+						gameStatus.removeFromPossibleCards(suggestedCards, currentPlayer, this, solution);
 					}
+					
 				}
 				//[3]	If the selected player Plays
 				else if(response.equals("Play"))
@@ -196,12 +220,11 @@ public class GameManagement
 					//[3a] Call relevant GameStatusAnalyzer methods
 					if(!currentPlayer.SOLVED)
 					{
-						gameStatus.playedOnSuggestion(suggestedCards, currentPlayer, this);
+						gameStatus.playedOnSuggestion(suggestedCards, currentPlayer, this, solution);
 					}
 					
 					currentPlayer = playerArray.get(indexOfCurrentPlayer);
 					this.nextPlayer(currentPlayer);
-					//[3b]	Go back to [0]
 					inner = false;
 				}
 				else if(response.equals("Quit"))
@@ -218,8 +241,9 @@ public class GameManagement
 			}
 			
 			numOfTurns++;
+			numOfPasses = 0;
 			
-			tester.printAllCards(this, numOfTurns);
+			tester.printAllCards(this, numOfTurns, solution);
 			
 			int numSolved = 0;
 			for(int i = 0; i < this.playerArray.size(); i++)
@@ -229,7 +253,7 @@ public class GameManagement
 					numSolved++;
 				}
 			}
-			if(numSolved == this.playerArray.size())
+			if((numSolved == this.playerArray.size()) || (solution.weaponFound & solution.characterFound & solution.locationFound))
 			{
 				System.out.println("\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nX\t   GAME SOLVED\t\tX\nX\t in " + numOfTurns + " suggestions\tX\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 				inner = false;
@@ -247,11 +271,48 @@ public class GameManagement
 	}//gameLoop()
 	
 	
+	public ArrayList<String> setSolution(ArrayList<String> cardPool)
+	{
+			ArrayList<String> 		solutionCards 		= new ArrayList<String>();		
+			
+			Random randNumGenerator = new Random();
+			int randNum;
+			
+			for(int i = 0; i < 3; i++)
+			{
+				if(i == 0)
+				{
+					randNum = randNumGenerator.nextInt(6);
+				}
+				else if(i == 1)
+				{
+					randNum = 6 + randNumGenerator.nextInt(6);
+				}
+				else 
+				{
+					randNum = 12 + randNumGenerator.nextInt(9);
+				}
+				solutionCards.add(cardPool.get(randNum));
+			}
+			
+			for(int i = 0; i < solutionCards.size(); i ++)
+			{
+				cardPool.remove(solutionCards.get(i));
+			}
+			
+			return solutionCards;
+		
+	}//setSolution()
+	
+	
 	public static void main(String args[]) 
 	{	
-		GameManagement newGame = new GameManagement();
-		newGame.gameSetup();
-		newGame.gameLoop();
+		for(int i = 0; i < 100; i++)
+		{
+			GameManagement newGame = new GameManagement();
+			newGame.gameSetup();
+			newGame.gameLoop();
+		}
 		
 		//TesterClass test = new TesterClass();
 		//test.test(newGame);

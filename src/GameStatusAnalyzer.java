@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 
 public class GameStatusAnalyzer 
 {
-	public void playedOnSuggestion(ArrayList<String> suggestedCards, Player currentPlayer, GameManagement newGame)
+	
+	public void playedOnSuggestion(ArrayList<String> suggestedCards, Player currentPlayer, GameManagement newGame, Solution solution)
 	{
 		ArrayList<String> possibleCardsFound = new ArrayList<String>();
 		int cardsNotFound = 0;
@@ -42,19 +44,19 @@ public class GameStatusAnalyzer
 			if(cardsNotFound == 2)
 			{
 				this.removeTriplicateFromPlayedCards(cardToRemove, currentPlayer);
-				this.addToKnownCards(possibleCardsFound, currentPlayer, newGame);
+				this.addToKnownCards(possibleCardsFound, currentPlayer, newGame, solution);
 			}
 			else
 			{
 				currentPlayer.playedCards.addAll(suggestedCards);
-				this.searchPlayedCards(currentPlayer, newGame);
+				this.searchPlayedCards(currentPlayer, newGame, solution);
 			}
 		}
 		
 	}//playedOnSuggestion
 	
 	
-	public void searchPlayedCards(Player currentPlayer, GameManagement newGame)
+	public void searchPlayedCards(Player currentPlayer, GameManagement newGame, Solution solution)
 	{
 		System.out.println("\n=== Searching " + currentPlayer.getName() + "'s \"Played Cards\" ===\n");
 		ArrayList<String> currentCard = new ArrayList<String>();
@@ -101,7 +103,7 @@ public class GameStatusAnalyzer
 				if(cardsNotFound == 2)
 				{
 					this.removeTriplicateFromPlayedCards(cardToRemove, currentPlayer);
-					this.addToKnownCards(currentCard, currentPlayer, newGame);
+					this.addToKnownCards(currentCard, currentPlayer, newGame, solution);
 				}
 				cardsNotFound = 0;
 			}
@@ -110,7 +112,7 @@ public class GameStatusAnalyzer
 	}//searchPlayedCards
 	
 	
-	public void removeFromPossibleCards(ArrayList<String> suggestedCards, Player currentPlayer, GameManagement newGame)
+	public void removeFromPossibleCards(ArrayList<String> suggestedCards, Player currentPlayer, GameManagement newGame, Solution solution)
 	{
 		System.out.println("\n=== Removing Cards from " + currentPlayer.getName() + "'s \"Possible Cards\" ===\n");
 		Iterator<String> itr = suggestedCards.iterator();
@@ -122,17 +124,17 @@ public class GameStatusAnalyzer
 			System.out.println("\t" + card + " removed from " + currentPlayer.getName() + "'s Possible Cards.");
 		}
 		
-		this.searchPlayedCards(currentPlayer, newGame);
+		this.searchPlayedCards(currentPlayer, newGame, solution);
 		
 		if( (currentPlayer.possibleCards.size() + currentPlayer.knownCards.size()) == currentPlayer.numOfHeldCards)
 		{
-			this.addToKnownCards(currentPlayer.possibleCards, currentPlayer, newGame);
+			this.addToKnownCards(currentPlayer.possibleCards, currentPlayer, newGame, solution);
 		}
 		
 	}//removeFromPossibleCards()
 	
 	
-	public void addToKnownCards(ArrayList<String> cards, Player currentPlayer, GameManagement newGame)
+	public void addToKnownCards(ArrayList<String> cards, Player currentPlayer, GameManagement newGame, Solution solution)
 	{	
 		System.out.println("\n=== Adding cards to " + currentPlayer.getName() + "'s \"Known Cards\" ===\n");
 		Iterator<String> itr = cards.iterator();
@@ -145,6 +147,8 @@ public class GameStatusAnalyzer
 		}
 		
 		System.out.println("\n");
+		
+		this.removeFromSolutionCards(cards, solution);
 		
 		if(currentPlayer.knownCards.size() == currentPlayer.numOfHeldCards)
 		{
@@ -165,7 +169,7 @@ public class GameStatusAnalyzer
 		{
 			if(!newGame.playerArray.get(i).SOLVED)
 			{
-				this.removeFromPossibleCards(cards, newGame.playerArray.get(i), newGame);
+				this.removeFromPossibleCards(cards, newGame.playerArray.get(i), newGame, solution);
 			}
 		}
 	
@@ -188,5 +192,76 @@ public class GameStatusAnalyzer
 		}
 		
 	}//removeTriplicateFromPlayedCards()
+
+	
+	public void checkForSolution(GameManagement newGame, Solution solution)
+	{
+		
+		
+	}//checkForSolution
+	
+	
+	public void removeFromSolutionCards(ArrayList<String> cards, Solution solution)
+	{
+		System.out.println("=== Removing New Known Card from Solution ===\n");
+		
+		//Remove the added card from the Solution's possible cards: Weapons, Characters, and Locations
+		if(!solution.weaponFound)
+		{
+			for(int i = 0; i < cards.size(); i++)
+			{
+				if(solution.weaponCards.contains(cards.get(i)))
+				{
+					solution.weaponCards.remove(cards.get(i));
+					System.out.println("\t" + cards.get(i) + " removed from Possible Weapons.\n");
+				}
+			}
+			if(solution.weaponCards.size() == 1)
+			{
+				solution.knownCards.add(solution.weaponCards.get(0));
+				solution.weaponFound = true;
+				System.out.println("\n\tMURDER WEAPON FOUND\n\t\t" + solution.weaponCards.get(0) + "\n");
+				solution.weaponCards.clear();
+			}
+		}
+		if(!solution.characterFound)
+		{
+			for(int i = 0; i < cards.size(); i++)
+			{
+				if(solution.characterCards.contains(cards.get(i)))
+				{
+					solution.characterCards.remove(cards.get(i));
+					System.out.println("\t" + cards.get(i) + " removed from Possible Characters.\n");
+				}
+			}
+			if(solution.characterCards.size() == 1)
+			{
+				solution.knownCards.add(solution.characterCards.get(0));
+				solution.characterFound = true;
+				System.out.println("\n\tMURDERER FOUND\n\t\t" + solution.characterCards.get(0) + "\n");
+				solution.characterCards.clear();
+			}
+		}
+		if(!solution.locationFound)
+		{
+			for(int i = 0; i < cards.size(); i++)
+			{
+				if(solution.locationCards.contains(cards.get(i)))
+				{
+					solution.locationCards.remove(cards.get(i));
+					System.out.println("\t" + cards.get(i) + " removed from Possible Locations.\n");
+				}
+			}
+			if(solution.locationCards.size() == 1)
+			{
+				solution.knownCards.addAll(solution.locationCards);
+				solution.locationFound = true;
+				System.out.println("\n\tMURDER LOCATION FOUND\n\t\t" + solution.locationCards.get(0) + "\n");
+				solution.locationCards.clear();
+			}
+		}
+		
+		
+	}//removeFromSolutionCards()
 	
 }//GameStatusAnalyzer

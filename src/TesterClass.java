@@ -17,10 +17,11 @@ public class TesterClass
 	}//test()
 	
 	
-	void printAllCards(GameManagement newGame, int numOfTurns)
+	void printAllCards(GameManagement newGame, int numOfTurns, Solution solution)
 	{
 		System.out.println("\n=======================\n    Turn " + numOfTurns +  " Summary\n=======================\n");
 		
+		//Print Player Cards
 		float numOfCardsCorrect;
 		for(int i = 0; i < newGame.playerArray.size(); i++)
 		{
@@ -60,6 +61,51 @@ public class TesterClass
 			}
 		}
 		
+		//Print Solution Cards
+		numOfCardsCorrect = 0;
+		if(solution.weaponFound & solution.characterFound & solution.locationFound)
+		{
+			System.out.println("\n***********************\n*\tSOLVED\t\t*\n***********************");
+		}
+		System.out.print("\nSolution's Cards: ");
+		if(solution.weaponFound)
+		{
+			numOfCardsCorrect++;
+		}
+		if(solution.characterFound)
+		{
+			numOfCardsCorrect++;
+		}
+		if(solution.locationFound)
+		{
+			numOfCardsCorrect++;
+		}
+		System.out.println("\t" + (100 * numOfCardsCorrect / solution.heldCards.size()) + " % Correct");
+		System.out.println("\t= Held Cards =");
+		for(int j = 0; j < solution.heldCards.size(); j++)
+		{
+			System.out.println("\t\t" + solution.heldCards.get(j));
+		}
+		System.out.println("\t= Known Cards =");
+		for(int j = 0; j < solution.knownCards.size(); j++)
+		{
+			System.out.println("\t\t" + solution.knownCards.get(j));
+		}
+		System.out.println("\t= Possible Weapons =");
+		for(int j = 0; j < solution.weaponCards.size(); j++)
+		{
+			System.out.println("\t\t" + solution.weaponCards.get(j));
+		}
+		System.out.println("\t= Possible Murderers =");
+		for(int j = 0; j < solution.characterCards.size(); j++)
+		{
+			System.out.println("\t\t" + solution.characterCards.get(j));
+		}
+		System.out.println("\t= Possible Locations =");
+		for(int j = 0; j < solution.locationCards.size(); j++)
+		{
+			System.out.println("\t\t" + solution.locationCards.get(j));
+		}
 		
 	}//printAllCards()
 	
@@ -137,6 +183,7 @@ public class TesterClass
 		
 	}
 
+	
 	public void setHeldCards(ArrayList<String> cardPool, GameManagement newGame)
 	{
 		Random rand = new Random();
