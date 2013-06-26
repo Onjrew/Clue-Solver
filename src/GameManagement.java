@@ -13,6 +13,7 @@ public class GameManagement
 	ArrayList<String> cardPool = new ArrayList<String>();
 	int numberOfPlayers = 6, numberOfCards, numOfTurns = 0, numOfPasses = 0;
 	boolean AUTOPLAY = true, AUTODEAL = true;
+	boolean comparisonCalled = false;
 
 	public void gameSetup()
 	{	
@@ -54,18 +55,15 @@ public class GameManagement
 		for(int i = 0; i < numberOfPlayers; i++)
 		{
 			Player newPlayer = new Player(cardPool);
-			if(!AUTOPLAY)
-			{
-				System.out.println("What is player " + (i+1) + "'s name?");
-				newPlayer.setName(scan.nextLine());
-			}
-			else 
+			if(AUTOPLAY)
 			{
 				newPlayer.setName("Player " + i);
 				System.out.println(newPlayer.getName() + " created.");
 			}
-			if(!AUTOPLAY)
+			else 
 			{
+				System.out.println("What is player " + (i+1) + "'s name?");
+				newPlayer.setName(scan.nextLine());
 				System.out.println("How many cards do they have?");
 				newPlayer.numOfHeldCards = Integer.parseInt(scan.nextLine());
 			}
@@ -97,21 +95,27 @@ public class GameManagement
 		{
 			tester.setHeldCards(cardPool, this);
 			
-			for(int i = 0; i < playerArray.size(); i++)
+			for(Player player : playerArray)
 			{
-				System.out.println("\n" + playerArray.get(i).getName() + " has:");
-				for(int j = 0; j < playerArray.get(i).heldCards.size(); j++)
+				System.out.println("\n" + player.getName() + " has:");
+				for(String heldCard : player.heldCards)
 				{
-					System.out.println(playerArray.get(i).heldCards.get(j));
+					System.out.println(heldCard);
 				}
 			}
 			System.out.println("\n" + solution.name + " has:");
-			for(int i = 0; i < solution.heldCards.size(); i++)
+			for(String heldCard : solution.heldCards)
 			{
-				System.out.println(solution.heldCards.get(i));
+				System.out.println(heldCard);
 			}
 		}
 		
+		if(AUTOPLAY)
+		{
+			playerArray.get(0).isYou = true;
+			gameStatus.addToKnownCards(playerArray.get(0).heldCards, playerArray.get(0), this, solution);
+			playerArray.get(0).possibleCards.clear();
+		}
 		
 		currentPlayer = playerArray.get(0);
 		
@@ -161,10 +165,13 @@ public class GameManagement
 			while(inner)
 			{
 				this.nextPlayer(currentPlayer);
-				System.out.print("Solution Cards: ");
-				for(int i = 0; i < solution.heldCards.size(); i++)
+				if(AUTOPLAY)
 				{
-					System.out.print(solution.heldCards.get(i) + "\t");
+					System.out.print("Solution Cards: ");
+					for(int i = 0; i < solution.heldCards.size(); i++)
+					{
+						System.out.print(solution.heldCards.get(i) + "\t");
+					}
 				}
 				System.out.print("\n" + suggestingPlayerName + " has suggested: ");
 				for(int i = 0; i < suggestedCards.size(); i++)
@@ -208,7 +215,7 @@ public class GameManagement
 					//[2a] Call Relevant GameStatusAnalyzer methods
 					if(!(currentPlayer.SOLVED || (solution.weaponFound & solution.characterFound & solution.locationFound)))
 					{
-						gameStatus.removeFromPossibleCards(suggestedCards, currentPlayer, this, solution);
+						gameStatus.removeFromPossibleCards(suggestedCards, currentPlayer, this, solution, false);
 					}
 					
 				}
@@ -239,6 +246,7 @@ public class GameManagement
 					inner = false;
 				}
 			}
+			gameStatus.comparePossibleCards(this, solution);
 			
 			numOfTurns++;
 			numOfPasses = 0;
@@ -259,7 +267,7 @@ public class GameManagement
 				inner = false;
 				running = false;
 			}
-			if(numOfTurns > 150)
+			if(comparisonCalled)
 			{
 				inner = false;
 				running = false;
@@ -305,6 +313,8 @@ public class GameManagement
 	}//setSolution()
 	
 	
+	
+
 	public static void main(String args[]) 
 	{	
 		for(int i = 0; i < 100; i++)

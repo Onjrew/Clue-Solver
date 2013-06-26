@@ -38,11 +38,14 @@ public class TesterClass
 					numOfCardsCorrect++;
 				}
 			}
-			System.out.println("\t" + (100 * numOfCardsCorrect / newGame.playerArray.get(i).heldCards.size()) + " % Correct");
-			System.out.println("\t= Held Cards =");
-			for(int j = 0; j < newGame.playerArray.get(i).heldCards.size(); j++)
+			if(newGame.AUTOPLAY)
 			{
-				System.out.println("\t\t" + newGame.playerArray.get(i).heldCards.get(j));
+				System.out.println("\t" + (100 * numOfCardsCorrect / newGame.playerArray.get(i).heldCards.size()) + " % Correct");
+				System.out.println("\t= Held Cards =");
+				for(int j = 0; j < newGame.playerArray.get(i).heldCards.size(); j++)
+				{
+					System.out.println("\t\t" + newGame.playerArray.get(i).heldCards.get(j));
+				}
 			}
 			System.out.println("\t= Known Cards =");
 			for(int j = 0; j < newGame.playerArray.get(i).knownCards.size(); j++)
@@ -80,11 +83,14 @@ public class TesterClass
 		{
 			numOfCardsCorrect++;
 		}
-		System.out.println("\t" + (100 * numOfCardsCorrect / solution.heldCards.size()) + " % Correct");
-		System.out.println("\t= Held Cards =");
-		for(int j = 0; j < solution.heldCards.size(); j++)
+		if(newGame.AUTOPLAY)
 		{
-			System.out.println("\t\t" + solution.heldCards.get(j));
+			System.out.println("\t" + (100 * numOfCardsCorrect / solution.heldCards.size()) + " % Correct");
+			System.out.println("\t= Held Cards =");
+			for(int j = 0; j < solution.heldCards.size(); j++)
+			{
+				System.out.println("\t\t" + solution.heldCards.get(j));
+			}
 		}
 		System.out.println("\t= Known Cards =");
 		for(int j = 0; j < solution.knownCards.size(); j++)
