@@ -1,0 +1,6 @@
+# -*- mode: gitignore; -*-
+
+# Ignore emacs temp files
+\#*\#
+.\#*
+*~
