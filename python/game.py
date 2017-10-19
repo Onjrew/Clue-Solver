@@ -7,6 +7,12 @@ from constants import (
     ROOMS,
 )
 
+from models import (
+    Player,
+    Card,
+    Suggestion,
+)
+
 from analyzer import GameStatusAnalyzer
 
 
@@ -20,10 +26,10 @@ class Game(object):
 
     def setup(self):
 
-        num_players = input('Num Players: ')
-        for i in xrange(num_players):
+        num_players = int(input('Num Players: '))
+        for i in range(num_players):
             self.players.append(Player(name = 'Player %d' % (i+1)))
-            print self.players[i].name
+            print(self.players[i].name)
 
         self.analyzer = GameStatusAnalyzer(players=self.players)
 
@@ -41,14 +47,14 @@ class Game(object):
                 'weapon': WEAPONS[r(0, 5)],
                 'room': ROOMS[r(0, 8)], 
             }
-            print 'Turn', self.turn_number
-            print 'Suggestion:', self.suggestion
+            print('Turn', self.turn_number)
+            print('Suggestion:', self.suggestion)
             
             for p in self.players:
                 ps = None
                 while ps not in ['p', 's', 'x']:
-                    print p.name
-                    ps = raw_input('p/s: ')
+                    print(p.name)
+                    ps = input('p/s: ')
                 if ps == 's':
                     # record stop
                     
