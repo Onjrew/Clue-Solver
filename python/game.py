@@ -1,5 +1,6 @@
-import os
 import sys
+
+from itertools import zip_longest as zip
 
 from constants import (
     SUSPECTS,
@@ -16,6 +17,40 @@ from models import (
 from analyzer import GameStatusAnalyzer
 
 
+class PlayerDisplayer(object):
+
+    def _print_player_header(self, player):
+        print(80 * '=')
+        print('Player: %s\n' % player.name)
+
+    def _print_card_header(self):
+        hdr = '     {: <15}         {: <11}          {: <13}\n' \
+              '     {:-<15}         {:-<11}          {:-<13}' \
+              .format('Suspects', 'Weapons', 'Rooms', '', '', '')
+        print(hdr)
+
+    def _print_card_dict(self, cards):
+        suspects = cards['suspects']
+        weapons = cards['weapons']
+        rooms = cards['rooms']
+        for suspect, weapon, room in zip(suspects, weapons, rooms, fillvalue=''):
+            row = '     {suspect: <15}          {weapon: <11}          {room: <13}' \
+                  .format(suspect=suspect, weapon=weapon, room=room)
+            print(row)
+        print()
+
+    def display_player(self, player):
+        self._print_player_header(player)
+
+        print('Known Cards')
+        self._print_card_header()
+        self._print_card_dict(player.known_cards)
+
+        print('Possible Cards')
+        self._print_card_header()
+        self._print_card_dict(player.possible_cards)
+
+
 class Game(object):
 
     def __init__(self):
@@ -24,32 +59,41 @@ class Game(object):
         self.turn_number = 1
         self.suggestion = {}
 
+        self.player_displayer = PlayerDisplayer()
+
     def setup(self):
 
         num_players = int(input('Num Players: '))
         for i in range(num_players):
-            self.players.append(Player(name = 'Player %d' % (i+1)))
-            print(self.players[i].name)
+            player = Player(name='Player %d' % (i+1))
+            player.possible_cards = {
+                'suspects': SUSPECTS,
+                'weapons': WEAPONS,
+                'rooms': ROOMS,
+            }
+            self.players.append(player)
 
         self.analyzer = GameStatusAnalyzer(players=self.players)
 
     def loop(self):
 
         # Display status
+        for p in self.players:
+            self.player_displayer.display_player(p)
 
         # Input Suggestion
 
         from random import randint as r
-        while True:
-            
+        while False:
+
             self.suggestion = {
                 'suspect': SUSPECTS[r(0, 5)],
                 'weapon': WEAPONS[r(0, 5)],
-                'room': ROOMS[r(0, 8)], 
+                'room': ROOMS[r(0, 8)],
             }
             print('Turn', self.turn_number)
             print('Suggestion:', self.suggestion)
-            
+
             for p in self.players:
                 ps = None
                 while ps not in ['p', 's', 'x']:
@@ -57,16 +101,15 @@ class Game(object):
                     ps = input('p/s: ')
                 if ps == 's':
                     # record stop
-                    
+
                     # to to next turn
                     break
 
                 if ps == 'x':
                     sys.exit()
 
-            
-                
         # Game over
+
 
 def main(argv):
 

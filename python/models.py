@@ -3,8 +3,16 @@ class Player(object):
 
     def __init__(self, name):
         self.name = name
-        self.possible_cards = []
-        self.known_cards = []
+        self.possible_cards = {
+            'suspects': [],
+            'weapons': [],
+            'rooms': [],
+        }
+        self.known_cards = {
+            'suspects': [],
+            'weapons': [],
+            'rooms': [],
+        }
         self.suggestions_played_on = []
 
 
