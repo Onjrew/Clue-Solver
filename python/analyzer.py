@@ -31,13 +31,9 @@ class GameStatusAnalyzer(object):
 
     def player_stopped(self, player, suggestion):
         # record stop
-        p.suggestions_played_on.append(suggestion)
+        player.suggestions_played_on.append(suggestion)
 
     def player_passed(self, player, suggestion):
         # Remove cards from player's possible cards
         for card_type, card in suggestion.items():
-            self.analyzer.remove_possible_card_from_player(
-                player,
-                card_type,
-                card
-            )
+            self.remove_possible_card_from_player(player, card_type, card)

@@ -84,11 +84,6 @@ class Game(object):
         num_players = int(input('Num Players: '))
         for i in range(num_players):
             player = Player(name='Player %d' % (i+1))
-            player.possible_cards = {
-                CardType.SUSPECT: SUSPECTS.copy(),
-                CardType.WEAPON: WEAPONS.copy(),
-                CardType.ROOM: ROOMS.copy(),
-            }
             self.players.append(player)
 
         self.analyzer = GameStatusAnalyzer(players=self.players)
@@ -111,7 +106,7 @@ class Game(object):
             print('Turn', self.turn_number)
             print('Suggestion:', suggestion)
 
-            for p in self.players:
+            for player in self.players:
                 ps = None
                 while ps not in ['p', 's', 'x']:
                     print(p.name)
