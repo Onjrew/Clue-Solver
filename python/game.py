@@ -20,12 +20,12 @@ from analyzer import GameStatusAnalyzer
 class PlayerDisplayer(object):
 
     def _print_player_header(self, player):
-        print(80 * '=')
+        print(51 * '=')
         print('Player: %s\n' % player.name)
 
     def _print_card_header(self):
-        hdr = '     {: <15}         {: <11}          {: <13}\n' \
-              '     {:-<15}         {:-<11}          {:-<13}' \
+        hdr = '    {: <15}    {: <11}     {: <13}\n' \
+              '    {:-<15}    {:-<11}     {:-<13}' \
               .format('Suspects', 'Weapons', 'Rooms', '', '', '')
         print(hdr)
 
@@ -34,7 +34,7 @@ class PlayerDisplayer(object):
         weapons = cards['weapons']
         rooms = cards['rooms']
         for suspect, weapon, room in zip(suspects, weapons, rooms, fillvalue=''):
-            row = '     {suspect: <15}          {weapon: <11}          {room: <13}' \
+            row = '    {suspect: <15}    {weapon: <11}    {room: <13}' \
                   .format(suspect=suspect, weapon=weapon, room=room)
             print(row)
         print()
@@ -67,32 +67,31 @@ class Game(object):
         for i in range(num_players):
             player = Player(name='Player %d' % (i+1))
             player.possible_cards = {
-                'suspects': SUSPECTS,
-                'weapons': WEAPONS,
-                'rooms': ROOMS,
+                'suspects': SUSPECTS.copy(),
+                'weapons': WEAPONS.copy(),
+                'rooms': ROOMS.copy(),
             }
             self.players.append(player)
 
         self.analyzer = GameStatusAnalyzer(players=self.players)
 
     def loop(self):
-
-        # Display status
-        for p in self.players:
-            self.player_displayer.display_player(p)
-
         # Input Suggestion
 
         from random import randint as r
-        while False:
+        while True:
 
-            self.suggestion = {
+            # Display status
+            for p in self.players:
+                self.player_displayer.display_player(p)
+
+            suggestion = {
                 'suspect': SUSPECTS[r(0, 5)],
                 'weapon': WEAPONS[r(0, 5)],
                 'room': ROOMS[r(0, 8)],
             }
             print('Turn', self.turn_number)
-            print('Suggestion:', self.suggestion)
+            print('Suggestion:', suggestion)
 
             for p in self.players:
                 ps = None
@@ -102,8 +101,18 @@ class Game(object):
                 if ps == 's':
                     # record stop
 
-                    # to to next turn
                     break
+
+                if ps == 'p':
+                    # Remove cards from player's possible cards
+                    if suggestion['suspect'] in p.possible_cards['suspects']:
+                        p.possible_cards['suspects'].remove(suggestion['suspect'])
+
+                    if suggestion['weapon'] in p.possible_cards['weapons']:
+                        p.possible_cards['weapons'].remove(suggestion['weapon'])
+
+                    if suggestion['room'] in p.possible_cards['rooms']:
+                        p.possible_cards['rooms'].remove(suggestion['room'])
 
                 if ps == 'x':
                     sys.exit()
