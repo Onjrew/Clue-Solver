@@ -35,18 +35,21 @@ class PlayerDisplayer(object):
         weapons = cards[CardType.WEAPON]
         rooms = cards[CardType.ROOM]
         for suspect, weapon, room in zip(suspects, weapons, rooms, fillvalue=''):
-            row = '    {suspect: <15}    {weapon: <11}    {room: <13}' \
-                  .format(suspect=suspect, weapon=weapon, room=room)
+            row = '    {suspect: <15}    {weapon: <11}    {room: <13}'.format(
+                suspect=suspect,
+                weapon=weapon,
+                room=room
+            )
             print(row)
         print()
 
     def _print_suggestions_played_on(self, suggestions_played_on):
         for suggestion in suggestions_played_on:
-            suspect = suggestion[CardType.SUSPECT]
-            weapon = suggestion[CardType.WEAPON]
-            room = suggestion[CardType.ROOM]
-            row = '    {suspect: <15}    {weapon: <11}    {room: <13}' \
-                  .format(suspect=suspect, weapon=weapon, room=room)
+            row = '    {suspect: <15}    {weapon: <11}    {room: <13}'.format(
+                suspect=suggestion[CardType.SUSPECT],
+                weapon=suggestion[CardType.WEAPON],
+                room=suggestion[CardType.ROOM]
+            )
             print(row)
         print()
 
