@@ -1,17 +1,19 @@
 
+from constants import CardType
+
 class Player(object):
 
     def __init__(self, name):
         self.name = name
         self.possible_cards = {
-            'suspects': [],
-            'weapons': [],
-            'rooms': [],
+            CardType.SUSPECT: [],
+            CardType.WEAPON: [],
+            CardType.ROOM: [],
         }
         self.known_cards = {
-            'suspects': [],
-            'weapons': [],
-            'rooms': [],
+            CardType.SUSPECT: [],
+            CardType.WEAPON: [],
+            CardType.ROOM: [],
         }
         self.suggestions_played_on = []
 
