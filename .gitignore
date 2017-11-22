@@ -1,4 +1,5 @@
 # -*- mode: gitignore; -*-
+__pycache__
 
 # Ignore emacs temp files
 \#*\#
