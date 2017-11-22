@@ -35,23 +35,21 @@ class PlayerDisplayer(object):
         weapons = cards[CardType.WEAPON]
         rooms = cards[CardType.ROOM]
         for suspect, weapon, room in zip(suspects, weapons, rooms, fillvalue=''):
-            row = '    {suspect: <15}    {weapon: <11}    {room: <13}'.format(
-                suspect=suspect,
-                weapon=weapon,
-                room=room
-            )
-            print(row)
+            self._print_card_row(suspect, weapon, room)
         print()
 
     def _print_suggestions_played_on(self, suggestions_played_on):
         for suggestion in suggestions_played_on:
-            row = '    {suspect: <15}    {weapon: <11}    {room: <13}'.format(
-                suspect=suggestion[CardType.SUSPECT],
-                weapon=suggestion[CardType.WEAPON],
-                room=suggestion[CardType.ROOM]
+            self._print_card_row(
+                suggestion[CardType.SUSPECT],
+                suggestion[CardType.WEAPON],
+                suggestion[CardType.ROOM],
             )
-            print(row)
         print()
+
+    def _print_card_row(self, suspect, weapon, room):
+        row = '    {: <15}    {: <11}    {: <13}'.format(suspect, weapon,room)
+        print(row)
 
     def display_player(self, player):
         self._print_player_header(player)
@@ -64,9 +62,9 @@ class PlayerDisplayer(object):
         self._print_card_header()
         self._print_card_dict(player.possible_cards)
 
-        print('Suggestions Played On')
-        self._print_card_header()
-        self._print_suggestions_played_on(player.suggestions_played_on)
+        # print('Suggestions Played On')
+        # self._print_card_header()
+        # self._print_suggestions_played_on(player.suggestions_played_on)
 
 
 class Game(object):
@@ -92,11 +90,13 @@ class Game(object):
         # Input Suggestion
 
         from random import randint as r
+        import os
         while True:
+            os.system('clear')
 
             # Display status
-            for p in self.players:
-                self.player_displayer.display_player(p)
+            for player in self.players:
+                self.player_displayer.display_player(player)
 
             suggestion = {
                 CardType.SUSPECT: SUSPECTS[r(0, 5)],
@@ -109,7 +109,7 @@ class Game(object):
             for player in self.players:
                 ps = None
                 while ps not in ['p', 's', 'x']:
-                    print(p.name)
+                    print(player.name)
                     ps = input('p/s: ')
 
                 if ps == 's':
@@ -121,6 +121,8 @@ class Game(object):
 
                 if ps == 'x':
                     sys.exit()
+
+        self.turn_number += 1
 
         # Game over
 
