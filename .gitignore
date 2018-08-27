@@ -1,5 +1,6 @@
 # -*- mode: gitignore; -*-
 __pycache__
+.pytest_cache
 
 # Ignore emacs temp files
 \#*\#
