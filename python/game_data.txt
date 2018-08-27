@@ -1,0 +1,51 @@
+////////////////////////////////////////////////////////////////////////////////
+{'suspect': 'Mrs. Peacock', 'weapon': 'Revolver', 'room': 'Lounge'}
+===================================================
+Player: hidden 1
+
+Actual Cards
+    Suspects           Weapons         Rooms        
+    ---------------    -----------     -------------
+                       Lead Pipe      Ballroom     
+                       Candlestick    Conservatory 
+                                      Kitchen      
+                                      Study        
+
+
+===================================================
+Player: hidden 2
+
+Actual Cards
+    Suspects           Weapons         Rooms        
+    ---------------    -----------     -------------
+    Colonel Mustard                   Dining Room  
+    Mr. Green                         Library      
+
+
+===================================================
+Player: hidden 3
+
+Actual Cards
+    Suspects           Weapons         Rooms        
+    ---------------    -----------     -------------
+    Miss Orchid        Rope           Hall         
+                       Dagger                      
+
+
+===================================================
+Player: hidden 4
+
+Actual Cards
+    Suspects           Weapons         Rooms        
+    ---------------    -----------     -------------
+                       Wrench         Billiard Room
+
+
+===================================================
+Player: hidden 5
+
+Actual Cards
+    Suspects           Weapons         Rooms        
+    ---------------    -----------     -------------
+    Professor Plum                                 
+    Miss Scarlet                                   
