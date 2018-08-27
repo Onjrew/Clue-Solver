@@ -1,5 +1,4 @@
 import sys
-
 from itertools import zip_longest as zip
 
 from constants import (
@@ -9,13 +8,8 @@ from constants import (
     ROOMS,
 )
 
-from models import (
-    Player,
-    Card,
-    Suggestion,
-)
-
 from analyzer import GameStatusAnalyzer
+from models import Player
 
 
 class PlayerDisplayer(object):
@@ -28,13 +22,16 @@ class PlayerDisplayer(object):
         hdr = '    {: <15}    {: <11}     {: <13}\n' \
               '    {:-<15}    {:-<11}     {:-<13}' \
               .format('Suspects', 'Weapons', 'Rooms', '', '', '')
+
         print(hdr)
 
     def _print_card_dict(self, cards):
         suspects = cards[CardType.SUSPECT]
         weapons = cards[CardType.WEAPON]
         rooms = cards[CardType.ROOM]
-        for suspect, weapon, room in zip(suspects, weapons, rooms, fillvalue=''):
+
+        cards_iterator = zip(suspects, weapons, rooms, fillvalue='')
+        for suspect, weapon, room in cards_iterator:
             self._print_card_row(suspect, weapon, room)
         print()
 
@@ -43,12 +40,12 @@ class PlayerDisplayer(object):
             self._print_card_row(
                 suggestion[CardType.SUSPECT],
                 suggestion[CardType.WEAPON],
-                suggestion[CardType.ROOM],
+                suggestion[CardType.ROOM]
             )
         print()
 
     def _print_card_row(self, suspect, weapon, room):
-        row = '    {: <15}    {: <11}    {: <13}'.format(suspect, weapon,room)
+        row = '    {: <15}    {: <11}    {: <13}'.format(suspect, weapon, room)
         print(row)
 
     def display_player(self, player):
@@ -67,6 +64,17 @@ class PlayerDisplayer(object):
         # self._print_suggestions_played_on(player.suggestions_played_on)
 
 
+class CLIGameDisplayer(object):
+
+    pass
+
+
+class GameController(object):
+
+    def __init__(self, displayer=CLIGameDisplayer()):
+        pass
+
+
 class Game(object):
 
     def __init__(self):
@@ -77,6 +85,12 @@ class Game(object):
         self.analyzer = None
         self.player_displayer = PlayerDisplayer()
 
+    def get_acting_players(self, player):
+        index = self.players.index(player)
+        start = self.players[index + 1:]
+        end = self.players[:index]
+        return start + end
+
     def setup(self):
 
         num_players = int(input('Num Players: '))
@@ -85,6 +99,52 @@ class Game(object):
             self.players.append(player)
 
         self.analyzer = GameStatusAnalyzer(players=self.players)
+
+        # Set the hidden state of the game
+        from random import randint as r
+        suspects = SUSPECTS.copy()
+        weapons = WEAPONS.copy()
+        rooms = ROOMS.copy()
+
+        # Create solution
+        solution = {
+            CardType.SUSPECT: suspects.pop(r(0, len(suspects) - 1)),
+            CardType.WEAPON: weapons.pop(r(0, len(weapons) - 1)),
+            CardType.ROOM: rooms.pop(r(0, len(rooms) - 1)),
+        }
+        self.solution = solution
+
+        # Deal hands
+        hidden_players = [Player('hidden ' + str(i+1))
+                          for i in range(num_players)]
+
+        while len(suspects) > 0:
+            player = hidden_players[r(0, len(hidden_players) - 1)]
+            card = suspects.pop(r(0, len(suspects) - 1))
+            player.known_cards[CardType.SUSPECT].append(card)
+
+        while len(weapons) > 0:
+            player = hidden_players[r(0, len(hidden_players) - 1)]
+            card = weapons.pop(r(0, len(weapons) - 1))
+            player.known_cards[CardType.WEAPON].append(card)
+
+        while len(rooms) > 0:
+            player = hidden_players[r(0, len(hidden_players) - 1)]
+            card = rooms.pop(r(0, len(rooms) - 1))
+            player.known_cards[CardType.ROOM].append(card)
+
+        self.hidden_players = hidden_players
+
+        for player in hidden_players:
+            PlayerDisplayer().display_player(player)
+
+        self.suggesting_player_index = 0
+
+    # suggesting index
+    # - Player does not appear in acting players
+    # acting index
+    # - start looping at suggesting player index + 1
+    # acting index is a list of ints
 
     def loop(self):
         # Input Suggestion
@@ -95,7 +155,14 @@ class Game(object):
             os.system('clear')
 
             # Display status
-            for player in self.players:
+            # print(80 * '/')
+            # print(self.solution)
+            # for player in self.hidden_players:
+            #     self.player_displayer.display_player(player)
+
+            players = [self.players[i] for i in range(
+                len(self.players)) if i != self.suggesting_player_index]
+            for player in players:
                 self.player_displayer.display_player(player)
 
             suggestion = {
@@ -104,9 +171,21 @@ class Game(object):
                 CardType.ROOM: ROOMS[r(0, 8)],
             }
             print('Turn', self.turn_number)
-            print('Suggestion:', suggestion)
 
-            for player in self.players:
+            turn_start_summary = ' '.join([
+                'Player',
+                self.suggesting_player_index + 1,
+                'Suggestion:',
+                suggestion
+            ])
+            print(turn_start_summary)
+
+            acting_players = self.get_acting_players(
+                self.players[
+                    self.suggesting_player_index
+                ]
+            )
+            for player in acting_players:
                 ps = None
                 while ps not in ['p', 's', 'x']:
                     print(player.name)
@@ -122,7 +201,10 @@ class Game(object):
                 if ps == 'x':
                     sys.exit()
 
-        self.turn_number += 1
+            self.turn_number += 1
+            self.suggesting_player_index += 1
+            if self.suggesting_player_index >= len(self.players):
+                self.suggesting_player_index = 0
 
         # Game over
 

@@ -4,6 +4,7 @@ class CardType(object):
     WEAPON = 'weapon'
     ROOM = 'room'
 
+
 SUSPECTS = [
     'Miss Scarlet',
     'Colonel Mustard',

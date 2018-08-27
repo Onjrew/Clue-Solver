@@ -1,10 +1,10 @@
-
 from constants import (
     CardType,
     SUSPECTS,
     WEAPONS,
     ROOMS,
 )
+
 
 class Player(object):
 
