@@ -79,11 +79,15 @@ class Game(object):
 
     def __init__(self):
         self.players = []
+        self.main_player = None
         self.turn_number = 1
         self.suggestion = {}
 
         self.analyzer = None
         self.player_displayer = PlayerDisplayer()
+
+    def add_player(self, player):
+        self.players.append(player)
 
     def get_acting_players(self, player):
         index = self.players.index(player)
@@ -174,9 +178,9 @@ class Game(object):
 
             turn_start_summary = ' '.join([
                 'Player',
-                self.suggesting_player_index + 1,
+                str(self.suggesting_player_index + 1),
                 'Suggestion:',
-                suggestion
+                str(suggestion)
             ])
             print(turn_start_summary)
 
@@ -207,6 +211,14 @@ class Game(object):
                 self.suggesting_player_index = 0
 
         # Game over
+
+
+def setup(game):
+
+    # Get each player
+    players = [
+
+    ]
 
 
 def main(argv):
