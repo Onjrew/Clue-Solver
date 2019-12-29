@@ -89,6 +89,9 @@ class Game(object):
     def add_player(self, player):
         self.players.append(player)
 
+    def rotate(self):
+        return
+
     def get_acting_players(self, player):
         index = self.players.index(player)
         start = self.players[index + 1:]

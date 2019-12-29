@@ -6,3 +6,6 @@ __pycache__
 \#*\#
 .\#*
 *~
+
+# Ignore stupid mac files
+.DS_Store
